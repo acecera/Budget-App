@@ -162,7 +162,7 @@ var UIController = (function() {
 
         numSplit = num.split('.');
 
-        int = numbSplit[0];
+        int = numSplit[0];
         if (int.length > 3) {
             int = int.substr(0, int.length - 3) + ',' +  int.substr(int.length - 3, 3); //input 2310 = 2,310
         }
@@ -244,20 +244,26 @@ var UIController = (function() {
         displayPercentages: function(percentages) {
             var fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
 
-            var nodeListForEach = function(list, callback) {
+            nodeListForEach(fields, function(list, callback) {
                 for (var i = 0; i < list.length; i++) {
                     callback(list[i], i);
                 }
-            };
-
-            nodeListForEach(fields, function(current, index) {
-               if (percentages[index] > 0) {
-                   current.textContent = percentages[index] + '%';
-               } else {
-                   current.textContent = '---';
-               }
             });
+    
         }, 
+
+        displayMonth: function() {
+            var now, months, month, year;
+
+            now = new Date();
+
+            months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            month = now.getMonth();
+
+            year = now.getFullYear();
+
+            document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
+        },
 
         getDOMstrings: function() {
             return DOMstrings;
