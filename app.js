@@ -1,5 +1,6 @@
 //Budget Controller 
 var budgetController = (function() {
+
      var Expense = function(id, description, value) {
          this.id = id;
          this.description = description;
@@ -89,8 +90,10 @@ var budgetController = (function() {
             //Calculate total income and expenses 
             calculateTotal('exp');
             calculateTotal('inc');
+
             //Calculate the budget 
             data.budget = data.totals.inc - data.totals.exp;
+
             //Calculate the percentage of income being spent
             if (data.totals.inc > 0) {
                 data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
@@ -130,6 +133,7 @@ var budgetController = (function() {
 
 //UI Controller 
 var UIController = (function() {
+
     var DOMstrings = {
         inputType: '.add__type',
         inputDescription: '.add__description',
@@ -143,6 +147,29 @@ var UIController = (function() {
         percentageLabel: '.budget__expenses--percentage',
         container: '.container', 
         expensesPercLabel: '.item__percentage',
+    };
+
+    var formatNumber = function(num, type) {
+        var numSplit, int, dec, type;
+
+        /*
+        + or - before number exactly 2 decimal points comma separating 
+        the thousands. ex. 2310.4567 -> + 2,310.46
+        */
+
+        num = Math.abs(num);
+        num = num.toFixed(2);
+
+        numSplit = num.split('.');
+
+        int = numbSplit[0];
+        if (int.length > 3) {
+            int = int.substr(0, int.length - 3) + ',' +  int.substr(int.length - 3, 3); //input 2310 = 2,310
+        }
+        
+        dec = numSplit[1];
+
+        return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
     };
 
     var nodeListForEach = function(list, callback) {
@@ -173,7 +200,7 @@ var UIController = (function() {
             //Replace the placeholder text with some actual data
             newHtml = html.replace('%id%', obj.id);
             newHtml = newHtml.replace('%description%', obj.description);
-            newHtml = newHtml.replace('%value%', this.formatNumber(obj.value));
+            newHtml = newHtml.replace('%value%', formatNumber(obj.value, type));
 
             //Insert the HTML into the DOM 
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
@@ -200,9 +227,12 @@ var UIController = (function() {
         },
 
         displayBudget: function(obj) {
-            document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
-            document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
-            document.querySelector(DOMstrings.expenseLabel).textContent = obj.totalExp;
+
+            obj.budget > 0 ? type = 'inc' : type = 'exp';
+
+            document.querySelector(DOMstrings.budgetLabel).textContent = formatNumber(obj.budget, type);
+            document.querySelector(DOMstrings.incomeLabel).textContent = formatNumber(obj.totalInc, 'inc');
+            document.querySelector(DOMstrings.expensesLabel).textContent = formatNumber(obj.totalExp, 'exp');
 
             if(obj.percentage > 0) {
                 document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
